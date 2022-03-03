@@ -2,26 +2,17 @@ package core.components;
 
 import core.Transform;
 import core.renderer.Texture;
+import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class SpriteRenderer extends Component {
 
-    private Vector4f color;
-    private Sprite sprite;
+    private Vector4f color = new Vector4f(1, 1, 1, 1);
+    private Sprite sprite = new Sprite();
 
-    private boolean isDirty = false;
-    private Transform lastTransform;
-
-    public SpriteRenderer(Vector4f color) {
-        this.color = color;
-        this.sprite = new Sprite(null);
-    }
-
-    public SpriteRenderer(Sprite sprite) {
-        this.color = new Vector4f(1, 1, 1, 1);
-        this.sprite = sprite;
-    }
+    private transient boolean isDirty = true;
+    private transient Transform lastTransform = new Transform();
 
     @Override
     public void start() {
@@ -33,6 +24,15 @@ public class SpriteRenderer extends Component {
         if (!this.lastTransform.equals(this.gameObject.transform)) {
             this.gameObject.transform.copy(this.lastTransform);
             isDirty = true;
+        }
+    }
+
+    @Override
+    public void imgui() {
+        float[] imColor = {color.x, color.y, color.z, color.w};
+        if(ImGui.colorPicker4("Color", imColor)) {
+            this.color.set(imColor[0], imColor[1], imColor[2], imColor[3]);
+            this.isDirty = true;
         }
     }
 
@@ -59,9 +59,10 @@ public class SpriteRenderer extends Component {
         return this.sprite;
     }
 
-    public void setSprite(Sprite sprite) {
+    public SpriteRenderer setSprite(Sprite sprite) {
         this.sprite = sprite;
         this.isDirty = true;
+        return this;
     }
 
     public boolean isDirty() {

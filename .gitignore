@@ -4,3 +4,6 @@ target
 
 # Error log
 *.log
+
+*.ini
+*.ttf

@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class RenderBatch {
+public class RenderBatch implements Comparable<RenderBatch>{
     /*
         Vertex
         =============
@@ -46,10 +46,12 @@ public class RenderBatch {
     private float[] vertices;
     private int vaoId, vboId;
     private int maxBatchSize;
+    private int zIndex;
 
     boolean rebufferData = false;
 
-    public RenderBatch(int maxBatchSize) {
+    public RenderBatch(int maxBatchSize, int zIndex) {
+        this.zIndex = zIndex;
         shader = AssetPool.getShader("src/main/resources/shaders/default.glsl");
         this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
@@ -264,5 +266,14 @@ public class RenderBatch {
 
     public boolean hasTexture(Texture texture) {
         return this.textureList.contains(texture);
+    }
+
+    public int getzIndex() {
+        return zIndex;
+    }
+
+    @Override
+    public int compareTo(RenderBatch renderBatch) {
+        return Integer.compare(this.zIndex, renderBatch.zIndex);
     }
 }

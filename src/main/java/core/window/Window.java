@@ -7,6 +7,7 @@ import core.scene.Scene;
 import core.util.Time;
 import game.scenes.LevelEditorScene;
 import game.scenes.LevelScene;
+import gui.ImGuiLayer;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
@@ -25,6 +26,8 @@ public class Window {
     private int windowWidth, windowHeight;
     private boolean isVsync;
     private final String windowTitle;
+
+    private ImGuiLayer imGuiLayer;
 
     public static float r, g, b;
 
@@ -130,6 +133,12 @@ public class Window {
         // IMPORTANT: Without this a lot of functions won't work
         GL.createCapabilities();
 
+        this.imGuiLayer = new ImGuiLayer(windowHandle);
+        imGuiLayer.initImGui();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
         Window.changeScene(0);
     }
 
@@ -138,6 +147,7 @@ public class Window {
         float endTime;
         float dt = -1;
 
+        currentScene.load();
 
         while (!glfwWindowShouldClose(windowHandle)) {
             glClearColor(r,g,b,1f);
@@ -147,6 +157,7 @@ public class Window {
                 currentScene.update(dt);
             }
 
+            this.imGuiLayer.update(dt, currentScene);
             glfwSwapBuffers(windowHandle);
 
             glfwPollEvents();
@@ -155,6 +166,8 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+
+        currentScene.saveExit();
     }
 
     private void setAllCallbacks() {
@@ -177,5 +190,13 @@ public class Window {
 
     public static Scene getCurrentScene() {
         return currentScene;
+    }
+
+    public static int getWindowWidth() {
+        return get().windowWidth;
+    }
+
+    public static int getWindowHeight() {
+        return get().windowHeight;
     }
 }
